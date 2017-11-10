@@ -1,7 +1,6 @@
 'use strict';
 
-var async = require('async'),
-    dxf = require('dxf'),
+var dxf = require('dxf'),
     request = require('request');
 
 exports.handler = function(event, context) {
