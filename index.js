@@ -1,15 +1,12 @@
 'use strict';
 
-const fs = require('fs');
-const dxf = require('dxf');
+var async = require('async'),
+    dxf = require('dxf'),
+    request = require('request');
 
-const parsed = dxf.parseString(
-  fs.readFileSync(
-    './node_modules/dxf/test/resources/circlesellipsesarcs.dxf', 'utf-8'
-  )
-);
+exports.handler = function(event, context) {
+  request({url: event.url, encoding: null}, function(error, response, body) {
+    context.done(null, {svg: dxf.toSVG(dxf.parseString(body))});
+  });
+};
 
-// Open this SVG in your browser or other SVG viewer
-const svg = dxf.toSVG(parsed);
-
-fs.writeFileSync(__dirname + '/example.svg', svg, 'utf-8');
