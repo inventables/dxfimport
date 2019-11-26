@@ -6,7 +6,7 @@ var AWS_ACCESS_KEY = "...",
 var properties = function (projectSettings) {
   return [
     { id: "DXF File", type: "file-input", mimeTypes: [".dxf"] },
-    { type: 'list', id: "OpMode", value: "Joined", options: ["Normal", "Joined"] }
+    { type: 'list', id: "Lines Mode", value: "Joined", options: ["Separate", "Joined"] }
   ];
 };
 
@@ -160,7 +160,7 @@ var executor = function (args, success, failure) {
           depth: args.material.dimensions.z
         };
 
-        if (params["OpMode"] == "Joined") {
+        if (params["Lines Mode"] == "Joined") {
           testVolume.cut = {
             type: "outline",
             outlineStyle: "outside",
