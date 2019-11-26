@@ -155,7 +155,7 @@ var executor = function (args, success, failure) {
         var testVolume = EASEL.pathUtils.fromPointArrays(newDataVolume.shape.points);
         testVolume.cut = {
           type: "outline",
-          outlineStyle: "outside",
+          outlineStyle: "on-path",
           tabPreference: false,
           depth: args.material.dimensions.z
         };
@@ -163,7 +163,7 @@ var executor = function (args, success, failure) {
         if (params["Lines Mode"] == "Joined") {
           testVolume.cut = {
             type: "outline",
-            outlineStyle: "outside",
+            outlineStyle: "on-path",
             tabPreference: false,
             depth: args.material.dimensions.z
           };
@@ -171,7 +171,7 @@ var executor = function (args, success, failure) {
             testVolume = EASEL.pathUtils.fromPointArrays([newDataVolume.shape.points[i]]);
             testVolume.cut = {
               type: "outline",
-              outlineStyle: "outside",
+              outlineStyle: "on-path",
               tabPreference: false,
               depth: args.material.dimensions.z
             };
