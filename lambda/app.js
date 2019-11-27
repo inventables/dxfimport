@@ -4,7 +4,9 @@ var dxf = require('dxf'),
   request = require('request');
 
 exports.handler = function (event, context) {
-  request({ url: event.url, encoding: null }, function (error, response, body) {
+  const body = JSON.parse(event.body);
+
+  request({ url: body.url, encoding: null }, function (error, response, body) {
     var dxfContents = body.toString();
     var units = determineUnits(dxfContents);
     var svgSTR = dxf.toSVG(dxf.parseString(dxfContents));
