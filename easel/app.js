@@ -89,7 +89,9 @@ var executor = function (args, success, failure) {
       "Content-Type": "text/plain",
     }
   })
-    .then(response => response.json())
+    .then(function(response) {
+      return response.json();
+    })
     .then(function(response) {
       /**
        * The lambda app finished! response contains the apps payload from the API Gateway
