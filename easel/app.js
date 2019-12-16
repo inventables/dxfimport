@@ -1,14 +1,13 @@
-var AWS_ACCESS_KEY = "...",
-  SECRET_ACCESS_KEY = "...",
-  LAMBDA_REGION = "us-east-1",
-  LAMBDA_NAME = "dxfimport2";
-
 var properties = function (projectSettings) {
   return [
     { id: "DXF File", type: "file-input", mimeTypes: [".dxf"] },
     { type: 'list', id: "Lines Mode", value: "Joined", options: ["Separate", "Joined"] }
   ];
 };
+
+// gateway name and API key are in AWS Lambda _Configuration_ tab, under _API Gateway layer
+var apiGatewayName = "...";
+var apiKey = ",,,";
 
 // The SVG returned by the DXF to SVG library contains tags that aren't handled by Easel.
 // This function filters out those tags.
@@ -81,28 +80,32 @@ var executor = function (args, success, failure) {
   if (!args.params['DXF File']) {
     return failure("Please upload a DXF file on the left to begin.");
   }
-  var request = new AWS.Lambda({
-    region: LAMBDA_REGION,
-    accessKeyId: AWS_ACCESS_KEY,
-    secretAccessKey: SECRET_ACCESS_KEY,
-    maxRetries: 3
-  }).invoke({
-    FunctionName: LAMBDA_NAME,
-    Payload: JSON.stringify({ 'url': args.params['DXF File'] })
 
-  }, function (err, result) {
-    if (err) {
-      failure("DXF import failed: " + err + ". Try re-uploading the file or refreshing your browser.");
-    } else {
-      var payload = JSON.parse(result.Payload);
-      if (payload.errorMessage || !payload.svg) {
-        var errorMessage = payload.errorMessage;
-        if (errorMessage.match('delegate')) {
-          errorMessage = "Cannot read file";
-        }
-        failure("DXF import failed: " + errorMessage);
-      } else {
-        var svg = payload.svg;
+  fetch(apiGatewayName, {
+    method: "POST",
+    body: JSON.stringify({ url: args.params["DXF File"] }),
+    headers: {
+      "x-api-key": apiKey,
+      "Content-Type": "text/plain",
+    }
+  })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(response) {
+      /**
+       * The lambda app finished! response contains the apps payload from the API Gateway
+       */
+
+      /**
+       * Process errors from inside of the Lambda app if returned payload has any
+       */
+      if ("errorMessage" in response) {
+        failure(response.errorMessage);
+      }
+
+      if ("svg" in response) {
+        var svg = response.svg;
         var fillColor = "#666";
         var strokeColor = "none";
         var volumes = [];
@@ -173,7 +176,13 @@ var executor = function (args, success, failure) {
         }
 
         success(volumes);
+      } else {
+        console.warn('Missing svg data', response);
+        failure('Could not parse the returned data.');
       }
-    }
-  });
+    })
+    .catch(function(err) {
+      // There was some general Lambda errors when calling the API
+      failure(err)
+    });
 };
