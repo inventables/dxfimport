@@ -92,22 +92,18 @@ var executor = function (args, success, failure) {
     .then(response => response.json())
     .then(function(response) {
       /**
-       * The lambda app finshed! result contains the apps payload, parsed as JSON
-       * The example app returns an svg as the only item in the map
-       *
-       * Since this is a "v1" app, we return SVG data
+       * The lambda app finished! response contains the apps payload from the API Gateway
        */
-      result = (typeof(response) == "string") ? JSON.parse(response) : response;
 
       /**
        * Process errors from inside of the Lambda app if returned payload has any
        */
-      if ("errorMessage" in result) {
-        failure(result.errorMessage);
+      if ("errorMessage" in response) {
+        failure(response.errorMessage);
       }
 
-      if ("svg" in result) {
-        var svg = result.svg;
+      if ("svg" in response) {
+        var svg = response.svg;
         var fillColor = "#666";
         var strokeColor = "none";
         var volumes = [];
@@ -179,7 +175,7 @@ var executor = function (args, success, failure) {
 
         success(volumes);
       } else {
-        console.warn('Missing svg data', result);
+        console.warn('Missing svg data', response);
         failure('Could not parse the returned data.');
       }
     })
