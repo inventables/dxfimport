@@ -203,6 +203,9 @@ var executor = function (args, success, failure) {
         }
 
         success(volumes);
+      } else {
+        console.warn('Missing svg data', result);
+        failure('Could not parse the returned data.');
       }
     })
     .catch(function(err) {
