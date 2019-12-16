@@ -55,13 +55,6 @@ function sortPoints(points) {
         j = i;
         continue;
       }
-      if ((Math.abs(first.x - lastCur.x) < diff) && (Math.abs(first.y - lastCur.y) < diff)) {
-        first = firstCur;
-        points[i] = points[j].concat(points[i]);
-        points.splice(j, 1);
-        j = i;
-        continue;
-      }
       if ((Math.abs(last.x - firstCur.x) < diff) && (Math.abs(last.y - firstCur.y) < diff)) {
         last = lastCur;
         points[i] = points[i].concat(points[j]);
@@ -117,26 +110,14 @@ var executor = function (args, success, failure) {
         var svg = result.svg;
         var fillColor = "#666";
         var strokeColor = "none";
-
-        var unitsMM, unitsIN, devider;
-
         var volumes = [];
 
-        svg = svg.replace(/INSUNITS/g, args.preferredUnit);
-        svg = svg.replace('fill="#000000"', 'fill="' + fillColor + '"')
+        svg = svg
+          .replace(/INSUNITS/g, args.preferredUnit)
+          .replace('fill="#000000"', 'fill="' + fillColor + '"')
           .replace('stroke="none"', 'stroke="' + strokeColor + '" stroke-width="5"');
 
-        unitsMM = svg.includes("mm\" height=");
-        unitsIN = svg.includes("in\" height=");
-
-        if (unitsMM) {
-          devider = 25.4;
-        } else {
-          if (!unitsIN) {
-
-          }
-          devider = 1;
-        }
+        var divider = svg.includes("mm\" height=") ? 25.4 : 1;
 
         svg = filterSVG(svg);
 
@@ -148,9 +129,9 @@ var executor = function (args, success, failure) {
           depth: args.material.dimensions.z
         };
 
-        // The devider fixes METRIC - IMPERIAL issues
-        newDataVolume.shape.width = newDataVolume.shape.width / devider;
-        newDataVolume.shape.height = newDataVolume.shape.height / devider;
+        // The divider fixes METRIC - IMPERIAL issues
+        newDataVolume.shape.width = newDataVolume.shape.width / divider;
+        newDataVolume.shape.height = newDataVolume.shape.height / divider;
         newDataVolume.shape.center.x = newDataVolume.shape.width / 2;
         newDataVolume.shape.center.y = newDataVolume.shape.height / 2;
         newDataVolume.shape.flipping.vertical = true;
@@ -165,13 +146,7 @@ var executor = function (args, success, failure) {
           depth: args.material.dimensions.z
         };
 
-        if (params["Lines Mode"] == "Joined") {
-          testVolume.cut = {
-            type: "outline",
-            outlineStyle: "on-path",
-            tabPreference: false,
-            depth: args.material.dimensions.z
-          };
+        if (params["Lines Mode"] === "Joined") {
           for (var i = 0; i < newDataVolume.shape.points.length; i++) {
             testVolume = EASEL.pathUtils.fromPointArrays([newDataVolume.shape.points[i]]);
             testVolume.cut = {
@@ -184,16 +159,16 @@ var executor = function (args, success, failure) {
           }
           var x = EASEL.volumeHelper.boundingBoxLeft(volumes);
           var y = EASEL.volumeHelper.boundingBoxBottom(volumes);
-          var boundingBox = EASEL.volumeHelper.boundingBox(volumes)
 
           for (i = 0; i < volumes.length; i++) {
-            volumes[i].shape.center.x = (volumes[i].shape.center.x - x) / devider;
-            volumes[i].shape.center.y = (volumes[i].shape.center.y - y) / devider;
-            volumes[i].shape.width = volumes[i].shape.width / devider;
-            volumes[i].shape.height = volumes[i].shape.height / devider;
+            volumes[i].shape.center.x = (volumes[i].shape.center.x - x) / divider;
+            volumes[i].shape.center.y = (volumes[i].shape.center.y - y) / divider;
+            volumes[i].shape.width = volumes[i].shape.width / divider;
+            volumes[i].shape.height = volumes[i].shape.height / divider;
             volumes[i].shape.flipping.vertical = true;
             volumes[i].shape.tabPreference = true;
           }
+
           var boundingBox = EASEL.volumeHelper.boundingBox(volumes);
           for (i = 0; i < volumes.length; i++) {
             volumes[i].shape.center.y = boundingBox.height - volumes[i].shape.center.y;
