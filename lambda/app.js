@@ -12,7 +12,16 @@ exports.handler = function (event, context) {
     var svgSTR = dxf.toSVG(dxf.parseString(dxfContents));
     svgSTR = svgSTR.replace("INSUNITS", units);
     svgSTR = svgSTR.replace("INSUNITS", units);
-    context.done(null, { svg: svgSTR });
+
+    context.done(
+      null,
+      {
+        isBase64Encoded: false,
+        statusCode: 200,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ "svg": svgSTR })
+      }
+    );
   });
 };
 
