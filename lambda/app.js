@@ -3,6 +3,8 @@
 const dxf = require('dxf');
 const request = require('request');
 
+const unitToken = "INSUNITS";
+
 exports.handler = (event, context) => {
   const body = JSON.parse(event.body);
 
@@ -11,7 +13,7 @@ exports.handler = (event, context) => {
 
     const outputSVG = dxf
       .toSVG(dxf.parseString(dxfContents))
-      .replace("INSUNITS", determineUnits(dxfContents));
+      .replace(unitToken, determineUnits(dxfContents));
 
     context.done(
       null,
@@ -26,10 +28,8 @@ exports.handler = (event, context) => {
 };
 
 function determineUnits(dxfContents) {
-  let unitSVG = "INSUNITS";
-
-  if (dxfContents.includes("$INSUNITS")) {
-    const splitOnUnits = dxfContents.split("$INSUNITS");
+  if (dxfContents.includes(`$${unitToken}`)) {
+    const splitOnUnits = dxfContents.split(`$${unitToken}`);
     const splitOnNine = splitOnUnits[1].split("9");
     const splitOnSeventy = splitOnNine[0].split("70");
     const units = splitOnSeventy[1].replace(/(\r\n\t|\n|\r\t)/gm, "");
@@ -44,5 +44,5 @@ function determineUnits(dxfContents) {
     }
   }
 
-  return unitSVG;
+  return unitToken;
 }
