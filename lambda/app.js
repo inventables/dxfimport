@@ -1,43 +1,48 @@
 'use strict';
 
-var dxf = require('dxf'),
-  request = require('request');
+const dxf = require('dxf');
+const request = require('request');
 
-exports.handler = function (event, context) {
+const unitToken = "INSUNITS";
+
+exports.handler = (event, context) => {
   const body = JSON.parse(event.body);
 
-  request({ url: body.url, encoding: null }, function (error, response, body) {
-    var dxfContents = body.toString();
-    var units = determineUnits(dxfContents);
-    var svgSTR = dxf.toSVG(dxf.parseString(dxfContents));
-    svgSTR = svgSTR.replace("INSUNITS", units);
-    svgSTR = svgSTR.replace("INSUNITS", units);
-    context.done(null, { svg: svgSTR });
+  request({ url: body.url, encoding: null }, (error, response, body) => {
+    const dxfContents = body.toString();
+
+    const outputSVG = dxf
+      .toSVG(dxf.parseString(dxfContents))
+      .replace(unitToken, determineUnits(dxfContents));
+
+    context.done(
+      null,
+      {
+        isBase64Encoded: false,
+        statusCode: 200,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ "svg": outputSVG })
+      }
+    );
   });
 };
 
 function determineUnits(dxfContents) {
-  var unitSVG = "INSUNITS";
-  if (dxfContents.includes("$INSUNITS")) {
-    var splitOnUnits = dxfContents.split("$INSUNITS");
-    var splitOnNine = splitOnUnits[1].split("9");
-    var splitOnSeventy = splitOnNine[0].split("70");
-    var units = splitOnSeventy[1].replace(/(\r\n\t|\n|\r\t)/gm, "");
-    var unit = parseInt(units);
+  if (dxfContents.includes(`$${unitToken}`)) {
+    const splitOnUnits = dxfContents.split(`$${unitToken}`);
+    const splitOnNine = splitOnUnits[1].split("9");
+    const splitOnSeventy = splitOnNine[0].split("70");
+    const units = splitOnSeventy[1].replace(/(\r\n\t|\n|\r\t)/gm, "");
 
-    switch (unit) {
+    switch (parseInt(units)) {
       case 1:
-        unitSVG = "in"
-        break;
+        return "in";
       case 4:
-        unitSVG = "mm"
-        break;
+        return "mm";
       case 5:
-        unitSVG = "cm"
-        break;
-      default:
-        unitSVG = "INSUNITS"
+        return "cm";
     }
   }
-  return unitSVG;
+
+  return unitToken;
 }
