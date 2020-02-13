@@ -1,7 +1,8 @@
 var properties = function (projectSettings) {
   return [
     { id: "DXF File", type: "file-input", mimeTypes: [".dxf"] },
-    { type: 'list', id: "Lines Mode", value: "Joined", options: ["Separate", "Joined"] }
+    { type: 'list', id: "Lines Mode", value: "Joined", options: ["Separate", "Joined"] },
+    { type: "list", id: "Cut Path", value: "On Path", options: ["On Path", "Outside", "Inside"] }
   ];
 };
 
@@ -109,6 +110,19 @@ var executor = function (args, success, failure) {
         var fillColor = "#666";
         var strokeColor = "none";
         var volumes = [];
+        var cutType = null;
+
+        switch(params["Cut Path"]) {
+          case "Outside":
+            cutType = "outside";
+            break;
+          case "Inside":
+            cutType = "inside";
+            break;
+          case "On Path":
+            cutType = "on-path";
+            break;
+        }
 
         svg = svg
           .replace(/INSUNITS/g, args.preferredUnit)
@@ -136,10 +150,11 @@ var executor = function (args, success, failure) {
         newDataVolume.shape.tabPreference = true;
         newDataVolume.shape.points = sortPoints(newDataVolume.shape.points);
 
+
         var testVolume = EASEL.pathUtils.fromPointArrays(newDataVolume.shape.points);
         testVolume.cut = {
           type: "outline",
-          outlineStyle: "on-path",
+          outlineStyle: cutType,
           tabPreference: false,
           depth: args.material.dimensions.z
         };
@@ -149,7 +164,7 @@ var executor = function (args, success, failure) {
             testVolume = EASEL.pathUtils.fromPointArrays([newDataVolume.shape.points[i]]);
             testVolume.cut = {
               type: "outline",
-              outlineStyle: "on-path",
+              outlineStyle: cutType,
               tabPreference: false,
               depth: args.material.dimensions.z
             };
