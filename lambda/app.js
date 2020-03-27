@@ -1,30 +1,34 @@
 'use strict';
 
 const dxf = require('dxf');
-const request = require('request');
+const Busboy = require('busboy');
 
 const unitToken = "INSUNITS";
 
 exports.handler = (event, context) => {
-  const body = JSON.parse(event.body);
+  const busboy = new Busboy({ headers: event.headers });
 
-  request({ url: body.url, encoding: null }, (error, response, body) => {
-    const dxfContents = body.toString();
+  busboy.on("file", (fieldName, file) => {
+    file.on("data", data => {
+      const dxfContents = data.toString("utf8");
 
-    const outputSVG = dxf
-      .toSVG(dxf.parseString(dxfContents))
-      .replace(unitToken, determineUnits(dxfContents));
+      const outputSVG = dxf
+        .toSVG(dxf.parseString(dxfContents))
+        .replace(unitToken, determineUnits(dxfContents));
 
-    context.done(
-      null,
-      {
-        isBase64Encoded: false,
-        statusCode: 200,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ "svg": outputSVG })
-      }
-    );
+      context.done(
+        null,
+        {
+          isBase64Encoded: false,
+          statusCode: 200,
+          headers: { "Access-Control-Allow-Origin": "*" },
+          body: JSON.stringify({ "svg": outputSVG })
+        }
+      );
+    });
   });
+
+  busboy.end(event.body);
 };
 
 function determineUnits(dxfContents) {
