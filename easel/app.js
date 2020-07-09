@@ -72,6 +72,14 @@ function sortPoints(points) {
       }
     }
   }
+
+  if (points.length) {
+    // close the path if first and last point are close enough to make the path open due to dxf -> svg floating point inaccuracies
+    if (Math.abs(points[0].x - points[points.length - 1].x) < diff && Math.abs(points[0].y - points[points.length - 1].y) < diff ) {
+      points[points.length - 1] = points[0];
+    }
+  }
+
   return points;
 }
 
