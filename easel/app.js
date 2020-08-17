@@ -1,3 +1,11 @@
+// uncomment the line below for deployment
+// var exports = {};
+
+// gateway name and API key are in AWS Lambda _Configuration_ tab, under _API Gateway layer
+var apiGatewayName = "...";
+var apiKey = "...";
+
+
 var properties = function (projectSettings) {
   return [
     { id: "DXF File", type: "file-input", mimeTypes: [".dxf"] },
@@ -5,10 +13,6 @@ var properties = function (projectSettings) {
     { type: "list", id: "Cut Path", value: "On Path", options: ["On Path", "Outside", "Inside"] }
   ];
 };
-
-// gateway name and API key are in AWS Lambda _Configuration_ tab, under _API Gateway layer
-var apiGatewayName = "...";
-var apiKey = ",,,";
 
 // The SVG returned by the DXF to SVG library contains tags that aren't handled by Easel.
 // This function filters out those tags.
@@ -212,3 +216,5 @@ var executor = function (args, success, failure) {
       failure(err)
     });
 };
+
+exports.sortPoints = sortPoints;
