@@ -20,6 +20,4 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: cd easel
-      - run: npm ci
-      - run: npm test
+      - run: pushd easel && npm ci && npm test && popd
