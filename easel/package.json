@@ -1,0 +1,12 @@
+{
+  "name": "dxfimport-easel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.3"
+  }
+}

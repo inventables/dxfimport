@@ -1,3 +1,11 @@
+// uncomment the line below for deployment
+// var exports = {};
+
+// gateway name and API key are in AWS Lambda _Configuration_ tab, under _API Gateway layer
+var apiGatewayName = "...";
+var apiKey = "...";
+
+
 var properties = function (projectSettings) {
   return [
     { id: "DXF File", type: "file-input", mimeTypes: [".dxf"] },
@@ -5,10 +13,6 @@ var properties = function (projectSettings) {
     { type: "list", id: "Cut Path", value: "On Path", options: ["On Path", "Outside", "Inside"] }
   ];
 };
-
-// gateway name and API key are in AWS Lambda _Configuration_ tab, under _API Gateway layer
-var apiGatewayName = "...";
-var apiKey = ",,,";
 
 // The SVG returned by the DXF to SVG library contains tags that aren't handled by Easel.
 // This function filters out those tags.
@@ -74,10 +78,13 @@ function sortPoints(points) {
   }
 
   if (points.length) {
-    // close the path if first and last point are close enough to make the path open due to dxf -> svg floating point inaccuracies
-    if (Math.abs(points[0].x - points[points.length - 1].x) < diff && Math.abs(points[0].y - points[points.length - 1].y) < diff ) {
-      points[points.length - 1] = points[0];
-    }
+    points = points.map(subPoints => {
+      // close the path if first and last point are close enough to make the path open due to dxf -> svg floating point inaccuracies
+      if (Math.abs(subPoints[0].x - subPoints[subPoints.length - 1].x) < diff && Math.abs(subPoints[0].y - subPoints[subPoints.length - 1].y) < diff ) {
+        subPoints[subPoints.length - 1] = subPoints[0];
+      }
+      return subPoints;
+    })
   }
 
   return points;
@@ -209,3 +216,5 @@ var executor = function (args, success, failure) {
       failure(err)
     });
 };
+
+exports.sortPoints = sortPoints;
