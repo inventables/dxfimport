@@ -144,7 +144,8 @@ var executor = function (args, success, failure) {
           .replace('fill="#000000"', 'fill="' + fillColor + '"')
           .replace('stroke="none"', 'stroke="' + strokeColor + '" stroke-width="5"');
 
-        var divider = svg.includes("mm\" height=") ? 25.4 : 1;
+        var scaleMatch = svg.match(/scale=\"(\d*(\.(\d)+)?)\"/);
+        var scale = scaleMatch && scaleMatch.length > 0 ? scaleMatch[1] : 1;
 
         svg = filterSVG(svg);
 
@@ -156,9 +157,9 @@ var executor = function (args, success, failure) {
           depth: args.material.dimensions.z
         };
 
-        // The divider fixes METRIC - IMPERIAL issues
-        newDataVolume.shape.width = newDataVolume.shape.width / divider;
-        newDataVolume.shape.height = newDataVolume.shape.height / divider;
+        // The scale fixes unit issues with SVG being imported in px
+        newDataVolume.shape.width = newDataVolume.shape.width * scale;
+        newDataVolume.shape.height = newDataVolume.shape.height * scale;
         newDataVolume.shape.center.x = newDataVolume.shape.width / 2;
         newDataVolume.shape.center.y = newDataVolume.shape.height / 2;
         newDataVolume.shape.flipping.vertical = true;
@@ -189,10 +190,10 @@ var executor = function (args, success, failure) {
           var y = EASEL.volumeHelper.boundingBoxBottom(volumes);
 
           for (i = 0; i < volumes.length; i++) {
-            volumes[i].shape.center.x = (volumes[i].shape.center.x - x) / divider;
-            volumes[i].shape.center.y = (volumes[i].shape.center.y - y) / divider;
-            volumes[i].shape.width = volumes[i].shape.width / divider;
-            volumes[i].shape.height = volumes[i].shape.height / divider;
+            volumes[i].shape.center.x = (volumes[i].shape.center.x - x) * scale;
+            volumes[i].shape.center.y = (volumes[i].shape.center.y - y) * scale;
+            volumes[i].shape.width = volumes[i].shape.width * scale;
+            volumes[i].shape.height = volumes[i].shape.height * scale;
             volumes[i].shape.flipping.vertical = true;
             volumes[i].shape.tabPreference = true;
           }

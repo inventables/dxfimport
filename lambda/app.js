@@ -13,7 +13,7 @@ exports.handler = (event, context) => {
 
     const outputSVG = dxf
       .toSVG(dxf.parseString(dxfContents))
-      .replace(unitToken, determineUnits(dxfContents));
+      .replace('<svg', `<svg scale="${determineUnits(dxfContents)}"`);
 
     context.done(
       null,
@@ -36,13 +36,12 @@ function determineUnits(dxfContents) {
 
     switch (parseInt(units)) {
       case 1:
-        return "in";
+        return 1;
       case 4:
-        return "mm";
+        return 1/25.4;
       case 5:
-        return "cm";
+        return 1/2.54;
     }
   }
-
-  return unitToken;
+  return 1;
 }
