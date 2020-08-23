@@ -139,13 +139,14 @@ var executor = function (args, success, failure) {
             break;
         }
 
+        var transformRegex = /transform=\"scale\((\d*(\.(\d)+)?)\)\"/;
+        var scaleMatch = svg.match(transformRegex);
+        var scale = scaleMatch.length > 0 ? scaleMatch[1] : 1;
+
         svg = svg
-          .replace(/INSUNITS/g, args.preferredUnit)
+          .replace(transformRegex, '')
           .replace('fill="#000000"', 'fill="' + fillColor + '"')
           .replace('stroke="none"', 'stroke="' + strokeColor + '" stroke-width="5"');
-
-        var scaleMatch = svg.match(/scale=\"(\d*(\.(\d)+)?)\"/);
-        var scale = scaleMatch && scaleMatch.length > 0 ? scaleMatch[1] : 1;
 
         svg = filterSVG(svg);
 

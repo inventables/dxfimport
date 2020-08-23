@@ -13,7 +13,7 @@ exports.handler = (event, context) => {
 
     const outputSVG = dxf
       .toSVG(dxf.parseString(dxfContents))
-      .replace('<svg', `<svg scale="${determineUnits(dxfContents)}"`);
+      .replace('<svg', `<svg transform="scale(${determineUnits(dxfContents)})"`);
 
     context.done(
       null,
