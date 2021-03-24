@@ -215,7 +215,7 @@ var executor = function (args, success, failure) {
     })
     .catch(function(err) {
       // There was some general Lambda errors when calling the API
-      failure(err)
+      failure(err.message)
     });
 };
 
