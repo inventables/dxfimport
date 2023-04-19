@@ -4,6 +4,6 @@
   "version": "0.0.1",
   "dependencies": {
     "dxf": "^3.4.4",
-    "request": "^2.87.0"
+    "request": "^2.88.2"
   }
 }
